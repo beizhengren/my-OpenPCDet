@@ -48,7 +48,7 @@ class CustomDataset(DatasetTemplate):
 
     def get_label(self, idx):
         label_file = self.root_path / 'labels' / ('%s.txt' % idx)
-        assert label_file.exists()
+        assert label_file.exists(), "label file is: {}".format(label_file)
         with open(label_file, 'r') as f:
             lines = f.readlines()
 
@@ -63,10 +63,13 @@ class CustomDataset(DatasetTemplate):
         return np.array(gt_boxes, dtype=np.float32), np.array(gt_names)
 
     def get_lidar(self, idx):
-        lidar_file = self.root_path / 'points' / ('%s.npy' % idx)
+        # lidar_file = self.root_path / 'points' / ('%s.npy' % idx)
+        # assert lidar_file.exists()
+        # point_features = np.load(lidar_file)
+        # return point_features
+        lidar_file = self.root_path / 'velodyne' / ('%s.bin' % idx)
         assert lidar_file.exists()
-        point_features = np.load(lidar_file)
-        return point_features
+        return np.fromfile(str(lidar_file), dtype=np.float32).reshape(-1, 4)
 
     def set_split(self, split):
         super().__init__(
@@ -277,7 +280,7 @@ if __name__ == '__main__':
         ROOT_DIR = (Path(__file__).resolve().parent / '../../../').resolve()
         create_custom_infos(
             dataset_cfg=dataset_cfg,
-            class_names=['Vehicle', 'Pedestrian', 'Cyclist'],
+            class_names=['Car', 'Pedestrian', 'Cyclist'],
             data_path=ROOT_DIR / 'data' / 'custom',
             save_path=ROOT_DIR / 'data' / 'custom',
         )
